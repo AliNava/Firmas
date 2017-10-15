@@ -227,12 +227,13 @@ public class BusinessLogic {
         long minor_keypoints = ( keyPoints[0].size() < keyPoints[1].size() )? keyPoints[0].size() : keyPoints[1].size() ;
         float matched_percentage = matches.size()   *    100.0f    /   minor_keypoints;
         System.out.println("Matching Percentage: " + matched_percentage );
-        if( matched_percentage >= 60.0 ){
-            JOptionPane.showMessageDialog(null, "Si, Podría ser la misma firma!");
-        }else{
-            JOptionPane.showMessageDialog(null, "No, No es igual");
-        }
-        
+        String msg ;
+        if( matched_percentage >= 59.0 )
+            msg = "Si, Podría ser la misma firma!";
+        else
+            msg = "No, No es igual";
+        PoiHelper.saveIntent( msg , matched_percentage);
+        JOptionPane.showMessageDialog(null, msg);
         
         long limit = 30;
         if( matches.size() < limit )    limit = matches.size();        

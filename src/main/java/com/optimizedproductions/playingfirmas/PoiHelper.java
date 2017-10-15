@@ -1,0 +1,97 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.optimizedproductions.playingfirmas;
+
+import static com.optimizedproductions.playingfirmas.FilesHelper.makePath;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.hssf.util.CellReference;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+
+/**
+ *
+ * @author herib_000
+ */
+public class PoiHelper {
+    
+    private static final String MY_FILE_PATH = "C:\\Tools\\ImagesData.xls";
+    public static final String HALF_CELL_INDEX = "A";
+    
+    
+    public static void saveIntent(String result, float percent){
+        
+        String pre = "";
+        if (FilesHelper.is_windows())
+            pre = MY_FILE_PATH.substring(0, 2);
+        String[] path = FilesHelper.getStepByStep(MY_FILE_PATH);
+        makePath(pre, path);
+        
+        try {
+            File p_f = new File( MY_FILE_PATH );
+            FileInputStream file = null;
+            HSSFWorkbook workbook;
+            HSSFSheet current;
+            
+            if( !p_f.exists() ){
+                workbook = new HSSFWorkbook();
+                current = workbook.createSheet("results");
+                
+                Row r = current.createRow(0);
+                r.createCell(0).setCellValue("Index");
+                r.createCell(1).setCellValue("Resultado");
+                r.createCell(2).setCellValue("Percentage");
+                r.createCell(3).setCellValue("Img1");
+                r.createCell(4).setCellValue("Img2");
+                r.createCell(5).setCellValue("matrix");
+                
+                FileOutputStream out = new FileOutputStream(new File( MY_FILE_PATH ));
+                workbook.write(out);
+                out.close();
+            }            
+
+            file = new FileInputStream( p_f );
+            workbook = new HSSFWorkbook(file);
+            current = workbook.getSheetAt(0);
+            int next_row = current.getLastRowNum() + 1;
+            
+            Row r = current.createRow( next_row );
+            
+            r.createCell(0).setCellValue( next_row );
+            r.createCell(1).setCellValue( result );
+            r.createCell(2).setCellValue( percent + "%" );
+            
+            
+            
+            if( file != null )
+                file.close();
+            
+            FileOutputStream out = new FileOutputStream(new File( MY_FILE_PATH ));
+            workbook.write(out);
+            out.close();
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(PoiHelper.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(PoiHelper.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+    }
+    
+    public static Cell getCell(final HSSFSheet sheet, final String reference){
+        CellReference cr = new CellReference(reference);
+        Row row = sheet.getRow(cr.getRow());
+        Cell cell = row.getCell(cr.getCol());
+        return cell;
+    }
+    
+}
