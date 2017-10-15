@@ -7,16 +7,22 @@ package com.optimizedproductions.playingfirmas;
 
 import java.awt.Image;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import org.bytedeco.javacpp.opencv_core;
 import static org.bytedeco.javacpp.opencv_core.IPL_DEPTH_8U;
+import org.bytedeco.javacpp.opencv_core.IplImage;
 import static org.bytedeco.javacpp.opencv_core.NORM_L2;
 import static org.bytedeco.javacpp.opencv_core.cvCopy;
 import static org.bytedeco.javacpp.opencv_core.cvCreateImage;
@@ -60,6 +66,25 @@ public class BusinessLogic {
     }
     public opencv_core.Mat iplImageToMat(opencv_core.IplImage src){
         return converter3.convert( converter3.convert(src ) );
+    }
+    public byte[] iplImageToByteArray(opencv_core.IplImage image){
+        BufferedImage im = iplImageToBufferedImage(image);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        byte[] barr = null;
+        try{
+            ImageIO.write(im,"jpg",baos);
+            baos.flush();
+            barr = baos.toByteArray();
+        } catch (IOException ex) {
+            Logger.getLogger(BusinessLogic.class.getName()).log(Level.SEVERE, null, ex);
+        }finally{
+            try {
+                baos.close();
+            } catch (IOException ex) {
+                Logger.getLogger(BusinessLogic.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        return barr;
     }
 
     public opencv_core.IplImage getImage1() {
@@ -232,7 +257,7 @@ public class BusinessLogic {
             msg = "Si, Podría ser la misma firma!";
         else
             msg = "No, No es igual";
-        PoiHelper.saveIntent( msg , matched_percentage);
+        
         JOptionPane.showMessageDialog(null, msg);
         
         long limit = 30;
@@ -242,9 +267,20 @@ public class BusinessLogic {
         opencv_core.Mat matches_drawn = new opencv_core.Mat();
         opencv_features2d.drawMatches(images[0], keyPoints[0], images[1], keyPoints[1],bestMatches,  matches_drawn  );
         
-        image1 = new opencv_core.IplImage(matches_drawn);
+        IplImage temporal = new opencv_core.IplImage(matches_drawn);
+        
+        PoiHelper.saveIntent( msg , matched_percentage,
+                iplImageToByteArray(image1),
+                iplImageToByteArray(image2),
+                iplImageToByteArray(temporal)
+                );
+        
+        image1 = temporal;
         load_image(image1, imageContainer1);
         imageContainer2.setIcon(null);
+        
+        
+        
     }
     
     
