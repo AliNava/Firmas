@@ -55,11 +55,15 @@ public class BusinessLogic {
     
     private IplImage image1, image2, backup;
     
+    public boolean ready_to_crop;
+    public boolean ready_to_compare;
     
     public BusinessLogic() {
         converter1 = new OpenCVFrameConverter.ToIplImage();
         converter2 = new Java2DFrameConverter();
         converter3 = new OpenCVFrameConverter.ToMat();
+        ready_to_crop = false;
+        ready_to_compare = false;
     }
     
     public BufferedImage iplImageToBufferedImage(IplImage src) {
@@ -90,9 +94,17 @@ public class BusinessLogic {
     }
 
     public IplImage getImage1() {   return image1;  }
-    public void setImage1(IplImage image1) {    this.image1 = image1;   }
+    public void setImage1(IplImage image1) {
+        ready_to_compare = false;   
+        ready_to_crop = false;
+        this.image1 = image1;   
+    }
     public IplImage getImage2() {   return image2;  }
-    public void setImage2(IplImage image2) {    this.image2 = image2;   }
+    public void setImage2(IplImage image2) {
+        ready_to_compare = false;
+        ready_to_crop = true;
+        this.image2 = image2;   
+    }
     public IplImage getBackup() {   return backup;  }
     public void setBackup(IplImage backup) {    this.backup = backup;   }
     
@@ -176,14 +188,17 @@ public class BusinessLogic {
     }    
     
     public void load_image(IplImage image, JLabel imageContainer){
-        int maxWidth = imageContainer.getWidth(),
-                maxHeight = imageContainer.getHeight();
-        imageContainer.setIcon(
-                scaleImage(
-                        new ImageIcon( iplImageToBufferedImage(image) )
-                        , maxWidth, maxHeight)
-        );
-        JOptionPane.showMessageDialog(null, "Image Loaded Successfully");
+        if( image != null ){
+            int maxWidth = imageContainer.getWidth(),
+                    maxHeight = imageContainer.getHeight();
+            imageContainer.setIcon(
+                    scaleImage(
+                            new ImageIcon( iplImageToBufferedImage(image) )
+                            , maxWidth, maxHeight)
+            );
+            JOptionPane.showMessageDialog(null, "Image Loaded Successfully");
+        }else
+            imageContainer.setIcon(null);
     }
     public ImageIcon scaleImage(ImageIcon icon, int w, int h){
         int nw = icon.getIconWidth();
@@ -201,6 +216,10 @@ public class BusinessLogic {
     
     
     public void compareImages( JLabel imageContainer1, JLabel imageContainer2  ){
+        if( !ready_to_compare ){
+            JOptionPane.showMessageDialog(null, "Cannot Continue... Is a process missing?");
+            return;
+        }
         opencv_core.Mat images[] = { 
             iplImageToMat(image1),
             iplImageToMat(image2)
@@ -270,8 +289,8 @@ public class BusinessLogic {
         load_image(image1, imageContainer1);
         imageContainer2.setIcon(null);
         
-        
-        
+        ready_to_crop = false;
+        ready_to_compare = false;
     }
     
     
