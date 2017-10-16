@@ -22,7 +22,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import org.bytedeco.javacpp.opencv_core;
 import static org.bytedeco.javacpp.opencv_core.IPL_DEPTH_8U;
-import org.bytedeco.javacpp.IplImage;
+import org.bytedeco.javacpp.opencv_core.IplImage;
 import static org.bytedeco.javacpp.opencv_core.NORM_L2;
 import static org.bytedeco.javacpp.opencv_core.cvCopy;
 import static org.bytedeco.javacpp.opencv_core.cvCreateImage;
@@ -95,10 +95,6 @@ public class BusinessLogic {
     public void setImage2(IplImage image2) {    this.image2 = image2;   }
     public IplImage getBackup() {   return backup;  }
     public void setBackup(IplImage backup) {    this.backup = backup;   }
-    
-    
-    
-    
     
     
     public static interface GetFileHelper{
