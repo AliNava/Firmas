@@ -128,7 +128,9 @@ public class MainClass extends javax.swing.JFrame {
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
         bl.getUserFile((IplImage image) -> {
             bl.setImage1(image);
-            bl.load_image(image, imageContainer1);
+            bl.setImage2(null);
+            bl.load_image(bl.getImage1(), imageContainer1);
+            bl.load_image(bl.getImage2(), imageContainer2);
         });
     }//GEN-LAST:event_jMenuItem1ActionPerformed
 

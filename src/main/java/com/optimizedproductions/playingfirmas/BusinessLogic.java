@@ -22,7 +22,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import org.bytedeco.javacpp.opencv_core;
 import static org.bytedeco.javacpp.opencv_core.IPL_DEPTH_8U;
-import org.bytedeco.javacpp.opencv_core.IplImage;
+import org.bytedeco.javacpp.IplImage;
 import static org.bytedeco.javacpp.opencv_core.NORM_L2;
 import static org.bytedeco.javacpp.opencv_core.cvCopy;
 import static org.bytedeco.javacpp.opencv_core.cvCreateImage;
@@ -52,22 +52,24 @@ public class BusinessLogic {
     private OpenCVFrameConverter.ToIplImage converter1;
     private Java2DFrameConverter converter2;
     private OpenCVFrameConverter.ToMat converter3 ;
-    private opencv_core.IplImage image1, image2;
-
+    
+    private IplImage image1, image2, backup;
+    
+    
     public BusinessLogic() {
         converter1 = new OpenCVFrameConverter.ToIplImage();
         converter2 = new Java2DFrameConverter();
         converter3 = new OpenCVFrameConverter.ToMat();
     }
     
-    public BufferedImage iplImageToBufferedImage(opencv_core.IplImage src) {
+    public BufferedImage iplImageToBufferedImage(IplImage src) {
         Frame frame = converter1.convert(src);
         return converter2.getBufferedImage(frame,1);
     }
-    public opencv_core.Mat iplImageToMat(opencv_core.IplImage src){
+    public opencv_core.Mat iplImageToMat(IplImage src){
         return converter3.convert( converter3.convert(src ) );
     }
-    public byte[] iplImageToByteArray(opencv_core.IplImage image){
+    public byte[] iplImageToByteArray(IplImage image){
         BufferedImage im = iplImageToBufferedImage(image);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         byte[] barr = null;
@@ -87,27 +89,20 @@ public class BusinessLogic {
         return barr;
     }
 
-    public opencv_core.IplImage getImage1() {
-        return image1;
-    }
-
-    public void setImage1(opencv_core.IplImage image1) {
-        this.image1 = image1;
-    }
-
-    public opencv_core.IplImage getImage2() {
-        return image2;
-    }
-
-    public void setImage2(opencv_core.IplImage image2) {
-        this.image2 = image2;
-    }
+    public IplImage getImage1() {   return image1;  }
+    public void setImage1(IplImage image1) {    this.image1 = image1;   }
+    public IplImage getImage2() {   return image2;  }
+    public void setImage2(IplImage image2) {    this.image2 = image2;   }
+    public IplImage getBackup() {   return backup;  }
+    public void setBackup(IplImage backup) {    this.backup = backup;   }
+    
+    
     
     
     
     
     public static interface GetFileHelper{
-        void onFileSelected(opencv_core.IplImage image);
+        void onFileSelected(IplImage image);
     }
     public void getUserFile( GetFileHelper listener ){
         String directory = "D:\\Downloads";
@@ -121,7 +116,7 @@ public class BusinessLogic {
                 return;
             }
             // Read input image
-            opencv_core.IplImage image = cvLoadImage(selected_file.getAbsolutePath());
+            IplImage image = cvLoadImage(selected_file.getAbsolutePath());
             if (image == null) {
                 JOptionPane.showMessageDialog(null, "Couldn't load image: " + selected_file.getAbsolutePath());
                 return;
@@ -130,7 +125,7 @@ public class BusinessLogic {
                 listener.onFileSelected(image);
 	}
     }
-    public opencv_core.IplImage crop_image(opencv_core.IplImage image, JLabel container){
+    public IplImage crop_image(IplImage image, JLabel container){
         if (image == null){
             JOptionPane.showMessageDialog(null, "Image Is Null");
             return null;
@@ -156,15 +151,15 @@ public class BusinessLogic {
         r.height( new_height );
         
         cvSetImageROI(image, r);
-        opencv_core.IplImage cropped = cvCreateImage(cvGetSize(image), image.depth(), image.nChannels());
+        IplImage cropped = cvCreateImage(cvGetSize(image), image.depth(), image.nChannels());
         // Copy original image (only ROI) to the cropped image
         cvCopy(image, cropped);
         image = cropped;
         load_image(image, container);
         return image;
     }
-    public opencv_core.IplImage filter_image(opencv_core.IplImage image, JLabel container){
-        opencv_core.IplImage image_gray = opencv_core.IplImage.create(image.width(), image.height(), IPL_DEPTH_8U, 1);
+    public IplImage filter_image(IplImage image, JLabel container){
+        IplImage image_gray = IplImage.create(image.width(), image.height(), IPL_DEPTH_8U, 1);
                 
         cvCvtColor(image, image_gray, CV_BGR2GRAY);
         image = image_gray;
@@ -184,7 +179,7 @@ public class BusinessLogic {
         return image;
     }    
     
-    public void load_image(opencv_core.IplImage image, JLabel imageContainer){
+    public void load_image(IplImage image, JLabel imageContainer){
         int maxWidth = imageContainer.getWidth(),
                 maxHeight = imageContainer.getHeight();
         imageContainer.setIcon(
@@ -267,7 +262,7 @@ public class BusinessLogic {
         opencv_core.Mat matches_drawn = new opencv_core.Mat();
         opencv_features2d.drawMatches(images[0], keyPoints[0], images[1], keyPoints[1],bestMatches,  matches_drawn  );
         
-        IplImage temporal = new opencv_core.IplImage(matches_drawn);
+        IplImage temporal = new IplImage(matches_drawn);
         
         PoiHelper.saveIntent( msg , matched_percentage,
                 iplImageToByteArray(image1),
