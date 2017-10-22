@@ -120,13 +120,13 @@ public class BusinessLogic {
             File selected_file = selector.getSelectedFile();
             // Verify file
             if (!selected_file.exists()) {
-                JOptionPane.showMessageDialog(null, "Image file does not exist: " + selected_file.getAbsolutePath() );
+                JOptionPane.showMessageDialog(null, "Imagen no existe: " + selected_file.getAbsolutePath() );
                 return;
             }
             // Read input image
             IplImage image = cvLoadImage(selected_file.getAbsolutePath());
             if (image == null) {
-                JOptionPane.showMessageDialog(null, "Couldn't load image: " + selected_file.getAbsolutePath());
+                JOptionPane.showMessageDialog(null, "No se puede cargar archivo: " + selected_file.getAbsolutePath());
                 return;
             }
             if( listener != null )
@@ -196,7 +196,7 @@ public class BusinessLogic {
                             new ImageIcon( iplImageToBufferedImage(image) )
                             , maxWidth, maxHeight)
             );
-            JOptionPane.showMessageDialog(null, "Image Loaded Successfully");
+            JOptionPane.showMessageDialog(null, "Imagen Actualizada");
         }else
             imageContainer.setIcon(null);
     }
@@ -217,7 +217,7 @@ public class BusinessLogic {
     
     public void compareImages( JLabel imageContainer1, JLabel imageContainer2  ){
         if( !ready_to_compare ){
-            JOptionPane.showMessageDialog(null, "Cannot Continue... Is a process missing?");
+            JOptionPane.showMessageDialog(null, "No se puede continuar... falta un proceso?");
             return;
         }
         opencv_core.Mat images[] = { 
@@ -266,7 +266,7 @@ public class BusinessLogic {
         if( matched_percentage >= 59.0 )
             msg = "Si, Podría ser la misma firma!";
         else
-            msg = "No, No es igual";
+            msg = "Definitivamente, No es igual";
         
         JOptionPane.showMessageDialog(null, msg);
         
